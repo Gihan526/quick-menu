@@ -28,8 +28,7 @@ const emptyDraft = { name: "", price: "" };
 export default function AddDishDialog({ onAddAction }: AddDishDialogProps) {
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState(emptyDraft);
-  // The picked file is held locally and only uploaded when the dish is added,
-  // so cancelling or replacing the photo never leaves orphans in storage.
+
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -60,7 +59,6 @@ export default function AddDishDialog({ onAddAction }: AddDishDialogProps) {
     setSaving(true);
     setError("");
     try {
-      // Upload happens here — only for a dish that's actually being added.
       const photo = file ? await uploadDishPhoto(file) : null;
       onAddAction({ ...draft, photo });
       reset();

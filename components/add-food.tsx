@@ -23,7 +23,7 @@ export default function AddFood() {
 
   function removeDish(id: number) {
     const removed = dishes.find((dish) => dish.id === id);
-    // Delete the dish's photo from storage (best-effort).
+
     if (removed?.photo) {
       deleteDishPhoto(removed.photo).catch((err) =>
         console.warn("Failed to delete dish photo:", err),

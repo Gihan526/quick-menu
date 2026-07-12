@@ -1,27 +1,29 @@
-"use client"
+"use client";
 
-import { X } from "lucide-react"
+import { X } from "lucide-react";
 
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 
 export type Dish = {
-  id: number
-  name: string
-  price: string
-  photo: string | null
-}
+  id: number;
+  name: string;
+  price: string;
+  photo: string | null;
+};
 
 type DishItemProps = {
-  dish: Dish
-  onRemoveAction: () => void
-}
+  dish: Dish;
+  onRemoveAction: () => void;
+};
 
 export default function DishItem({ dish, onRemoveAction }: DishItemProps) {
   return (
     <div className="flex min-h-20 items-center gap-3 rounded-xl border bg-background px-3 py-2 sm:gap-4 sm:px-4">
       <div
         className="size-14 shrink-0 overflow-hidden rounded-lg bg-[repeating-linear-gradient(135deg,oklch(0.985_0_0),oklch(0.985_0_0)_7px,oklch(0.94_0_0)_7px,oklch(0.94_0_0)_14px)] bg-cover bg-center sm:size-16"
-        style={dish.photo ? { backgroundImage: `url(${dish.photo})` } : undefined}
+        style={
+          dish.photo ? { backgroundImage: `url(${dish.photo})` } : undefined
+        }
       />
 
       <span className="flex-1 truncate px-2 text-sm sm:text-base">
@@ -44,5 +46,5 @@ export default function DishItem({ dish, onRemoveAction }: DishItemProps) {
         <X aria-hidden="true" />
       </Button>
     </div>
-  )
+  );
 }
