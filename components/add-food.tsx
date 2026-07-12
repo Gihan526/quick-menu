@@ -1,33 +1,41 @@
-"use client"
+"use client";
 
-import { useRef, useState, type SubmitEvent } from "react"
+import { useRef, useState, type SubmitEvent } from "react";
 
-import AddDishDialog from "@/components/add-dish-dialog"
-import DishItem, { type Dish } from "@/components/dish-item"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Separator } from "@/components/ui/separator"
+import AddDishDialog from "@/components/add-dish-dialog";
+import DishItem, { type Dish } from "@/components/dish-item";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
+import { deleteDishPhoto } from "@/lib/upload";
 
 export default function AddFood() {
-  const [dishes, setDishes] = useState<Dish[]>([])
-  const nextDishId = useRef(1)
+  const [dishes, setDishes] = useState<Dish[]>([]);
+  const nextDishId = useRef(1);
 
   function addDish(dish: Omit<Dish, "id">) {
-    const id = nextDishId.current++
+    const id = nextDishId.current++;
 
-    setDishes((currentDishes) => [...currentDishes, { ...dish, id }])
+    setDishes((currentDishes) => [...currentDishes, { ...dish, id }]);
   }
 
   function removeDish(id: number) {
+    const removed = dishes.find((dish) => dish.id === id);
+    // Delete the dish's photo from storage (best-effort).
+    if (removed?.photo) {
+      deleteDishPhoto(removed.photo).catch((err) =>
+        console.warn("Failed to delete dish photo:", err),
+      );
+    }
     setDishes((currentDishes) =>
-      currentDishes.filter((dish) => dish.id !== id)
-    )
+      currentDishes.filter((dish) => dish.id !== id),
+    );
   }
 
   function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
-    event.preventDefault()
+    event.preventDefault();
   }
 
   return (
@@ -112,18 +120,21 @@ export default function AddFood() {
               <DishItem
                 dish={dish}
                 key={dish.id}
-                onRemove={() => removeDish(dish.id)}
+                onRemoveAction={() => removeDish(dish.id)}
               />
             ))}
 
-            <AddDishDialog onAdd={addDish} />
+            <AddDishDialog onAddAction={addDish} />
           </fieldset>
 
-          <Button className="h-12 w-full rounded-xl text-sm font-semibold sm:text-base" type="submit">
+          <Button
+            className="h-12 w-full rounded-xl text-sm font-semibold sm:text-base"
+            type="submit"
+          >
             Continue
           </Button>
         </form>
       </CardContent>
     </Card>
-  )
+  );
 }

@@ -13,10 +13,10 @@ export type Dish = {
 
 type DishItemProps = {
   dish: Dish
-  onRemove: () => void
+  onRemoveAction: () => void
 }
 
-export default function DishItem({ dish, onRemove }: DishItemProps) {
+export default function DishItem({ dish, onRemoveAction }: DishItemProps) {
   return (
     <div className="flex min-h-20 items-center gap-3 rounded-xl border bg-background px-3 py-2 sm:gap-4 sm:px-4">
       <div
@@ -36,7 +36,7 @@ export default function DishItem({ dish, onRemove }: DishItemProps) {
       <Button
         aria-label={`Remove ${dish.name || "dish"}`}
         className="size-8 shrink-0 rounded-lg text-muted-foreground hover:text-foreground"
-        onClick={onRemove}
+        onClick={onRemoveAction}
         size="icon"
         type="button"
         variant="ghost"

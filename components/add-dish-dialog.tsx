@@ -1,10 +1,11 @@
-"use client"
+"use client";
 
-import { useState, type ChangeEvent, type FormEvent } from "react"
-import { ImagePlus, Plus } from "lucide-react"
+import { useState, type SubmitEvent } from "react";
 
-import type { Dish } from "@/components/dish-item"
-import { Button } from "@/components/ui/button"
+import { ImagePlus, Plus } from "lucide-react";
+
+import type { Dish } from "@/components/dish-item";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogClose,
@@ -13,41 +14,67 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { uploadDishPhoto } from "@/lib/upload";
 
 type AddDishDialogProps = {
-  onAdd: (dish: Omit<Dish, "id">) => void
-}
+  onAddAction: (dish: Omit<Dish, "id">) => void;
+};
 
-const emptyDraft = { name: "", price: "", photo: null as string | null }
+const emptyDraft = { name: "", price: "" };
 
-export default function AddDishDialog({ onAdd }: AddDishDialogProps) {
-  const [open, setOpen] = useState(false)
-  const [draft, setDraft] = useState(emptyDraft)
+export default function AddDishDialog({ onAddAction }: AddDishDialogProps) {
+  const [open, setOpen] = useState(false);
+  const [draft, setDraft] = useState(emptyDraft);
+  // The picked file is held locally and only uploaded when the dish is added,
+  // so cancelling or replacing the photo never leaves orphans in storage.
+  const [file, setFile] = useState<File | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
 
-  function handlePhoto(event: ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0]
-
-    if (!file) return
-
-    const reader = new FileReader()
-    reader.onload = () =>
-      setDraft((current) => ({ ...current, photo: reader.result as string }))
-    reader.readAsDataURL(file)
+  function reset() {
+    setDraft(emptyDraft);
+    setFile(null);
+    setError("");
+    setPreview((current) => {
+      if (current) URL.revokeObjectURL(current);
+      return null;
+    });
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    onAdd(draft)
-    setDraft(emptyDraft)
-    setOpen(false)
+  function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const picked = e.target.files?.[0];
+    if (!picked) return;
+    setFile(picked);
+    setPreview((current) => {
+      if (current) URL.revokeObjectURL(current);
+      return URL.createObjectURL(picked);
+    });
+  }
+
+  async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setSaving(true);
+    setError("");
+    try {
+      // Upload happens here — only for a dish that's actually being added.
+      const photo = file ? await uploadDishPhoto(file) : null;
+      onAddAction({ ...draft, photo });
+      reset();
+      setOpen(false);
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setSaving(false);
+    }
   }
 
   function handleOpenChange(nextOpen: boolean) {
-    setOpen(nextOpen)
-    if (!nextOpen) setDraft(emptyDraft)
+    setOpen(nextOpen);
+    if (!nextOpen) reset();
   }
 
   return (
@@ -79,19 +106,20 @@ export default function AddDishDialog({ onAdd }: AddDishDialogProps) {
               className="flex size-24 cursor-pointer items-center justify-center overflow-hidden rounded-xl border border-dashed bg-[repeating-linear-gradient(135deg,oklch(0.985_0_0),oklch(0.985_0_0)_7px,oklch(0.94_0_0)_7px,oklch(0.94_0_0)_14px)] bg-cover bg-center text-muted-foreground transition-opacity hover:opacity-80"
               htmlFor="dish-draft-photo"
               style={
-                draft.photo ? { backgroundImage: `url(${draft.photo})` } : undefined
+                preview ? { backgroundImage: `url(${preview})` } : undefined
               }
             >
-              {!draft.photo && <ImagePlus aria-hidden="true" className="size-6" />}
+              {!preview && <ImagePlus aria-hidden="true" className="size-6" />}
               <span className="sr-only">Choose a photo for this dish</span>
             </Label>
             <Input
               accept="image/*"
               className="sr-only"
               id="dish-draft-photo"
-              onChange={handlePhoto}
+              onChange={handleFile}
               type="file"
             />
+            {error && <p className="text-xs text-destructive">{error}</p>}
           </div>
 
           <div className="space-y-2">
@@ -106,7 +134,10 @@ export default function AddDishDialog({ onAdd }: AddDishDialogProps) {
               className="h-11 rounded-xl px-4 text-sm shadow-none"
               id="dish-draft-name"
               onChange={(event) =>
-                setDraft((current) => ({ ...current, name: event.target.value }))
+                setDraft((current) => ({
+                  ...current,
+                  name: event.target.value,
+                }))
               }
               placeholder="e.g. Butter Chicken"
               required
@@ -127,7 +158,10 @@ export default function AddDishDialog({ onAdd }: AddDishDialogProps) {
               inputMode="numeric"
               min="0"
               onChange={(event) =>
-                setDraft((current) => ({ ...current, price: event.target.value }))
+                setDraft((current) => ({
+                  ...current,
+                  price: event.target.value,
+                }))
               }
               placeholder="e.g. 320"
               required
@@ -137,15 +171,15 @@ export default function AddDishDialog({ onAdd }: AddDishDialogProps) {
           </div>
 
           <div className="flex justify-end gap-2">
-            <DialogClose
-              render={<Button type="button" variant="outline" />}
-            >
+            <DialogClose render={<Button type="button" variant="outline" />}>
               Cancel
             </DialogClose>
-            <Button type="submit">Add dish</Button>
+            <Button disabled={saving} type="submit">
+              {saving ? "Adding..." : "Add dish"}
+            </Button>
           </div>
         </form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
