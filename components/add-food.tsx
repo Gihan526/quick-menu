@@ -1,9 +1,10 @@
 "use client";
 
-import { useRef, useState, type SubmitEvent } from "react";
+import { useRef, useState } from "react";
 
+import { createRestaurant } from "@/actions/create-restaurant";
 import AddDishDialog from "@/components/add-dish-dialog";
-import DishItem, { type Dish } from "@/components/dish-item";
+import DishItem, { type Dish, type DishDraft } from "@/components/dish-item";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -15,7 +16,7 @@ export default function AddFood() {
   const [dishes, setDishes] = useState<Dish[]>([]);
   const nextDishId = useRef(1);
 
-  function addDish(dish: Omit<Dish, "id">) {
+  function addDish(dish: DishDraft) {
     const id = nextDishId.current++;
 
     setDishes((currentDishes) => [...currentDishes, { ...dish, id }]);
@@ -34,14 +35,10 @@ export default function AddFood() {
     );
   }
 
-  function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
-    event.preventDefault();
-  }
-
   return (
     <Card className="w-full max-w-4xl gap-0 rounded-3xl bg-card py-0 shadow-sm ring-1 ring-foreground/10">
       <CardContent className="px-5 py-6 sm:px-8 sm:py-8 lg:px-10 lg:py-10">
-        <form className="space-y-7" onSubmit={handleSubmit}>
+        <form className="space-y-7" action={createRestaurant}>
           <div className="grid gap-x-6 gap-y-5 md:grid-cols-2">
             <div className="space-y-2">
               <Label
@@ -127,8 +124,11 @@ export default function AddFood() {
             <AddDishDialog onAddAction={addDish} />
           </fieldset>
 
+          <input name="dishes" type="hidden" value={JSON.stringify(dishes)} />
+
           <Button
             className="h-12 w-full rounded-xl text-sm font-semibold sm:text-base"
+            disabled={dishes.length === 0}
             type="submit"
           >
             Continue

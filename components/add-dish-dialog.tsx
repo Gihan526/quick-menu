@@ -4,7 +4,7 @@ import { useState, type SubmitEvent } from "react";
 
 import { ImagePlus, Plus } from "lucide-react";
 
-import type { Dish } from "@/components/dish-item";
+import type { DishDraft } from "@/components/dish-item";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -20,7 +20,7 @@ import { Label } from "@/components/ui/label";
 import { uploadDishPhoto } from "@/lib/upload";
 
 type AddDishDialogProps = {
-  onAddAction: (dish: Omit<Dish, "id">) => void;
+  onAddAction: (dish: DishDraft) => void;
 };
 
 const emptyDraft = { name: "", price: "" };
@@ -64,7 +64,7 @@ export default function AddDishDialog({ onAddAction }: AddDishDialogProps) {
       reset();
       setOpen(false);
     } catch (err) {
-      setError((err as Error).message);
+      setError(err instanceof Error ? err.message : "Something went wrong");
     } finally {
       setSaving(false);
     }

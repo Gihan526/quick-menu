@@ -4,6 +4,12 @@ import { X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
+export type DishDraft = {
+  name: string;
+  price: string;
+  photo: string | null;
+};
+
 export type Dish = {
   id: number;
   name: string;
