@@ -1,10 +1,10 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, type FormEvent } from "react";
 
-import { createRestaurant } from "@/actions/create-restaurant";
 import AddDishDialog from "@/components/add-dish-dialog";
 import DishItem, { type Dish, type DishDraft } from "@/components/dish-item";
+import TemplateSelector from "@/components/template-selector";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -14,7 +14,23 @@ import { deleteDishPhoto } from "@/lib/upload";
 
 export default function AddFood() {
   const [dishes, setDishes] = useState<Dish[]>([]);
+  const [step, setStep] = useState("details");
+  const [restaurant, setRestaurant] = useState({
+    name: "",
+    contactNumber: "",
+    address: "",
+    tagline: "",
+  });
   const nextDishId = useRef(1);
+
+  function updateRestaurant(field: string, value: string) {
+    setRestaurant((current) => ({ ...current, [field]: value }));
+  }
+
+  function showTemplates(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setStep("templates");
+  }
 
   function addDish(dish: DishDraft) {
     const id = nextDishId.current++;
@@ -35,10 +51,33 @@ export default function AddFood() {
     );
   }
 
+  function createAnotherMenu() {
+    setRestaurant({
+      name: "",
+      contactNumber: "",
+      address: "",
+      tagline: "",
+    });
+    setDishes([]);
+    nextDishId.current = 1;
+    setStep("details");
+  }
+
+  if (step === "templates") {
+    return (
+      <TemplateSelector
+        dishes={dishes}
+        onBackAction={() => setStep("details")}
+        onCreateAnotherAction={createAnotherMenu}
+        restaurant={restaurant}
+      />
+    );
+  }
+
   return (
     <Card className="w-full max-w-4xl gap-0 rounded-3xl bg-card py-0 shadow-sm ring-1 ring-foreground/10">
       <CardContent className="px-5 py-6 sm:px-8 sm:py-8 lg:px-10 lg:py-10">
-        <form className="space-y-7" action={createRestaurant}>
+        <form className="space-y-7" onSubmit={showTemplates}>
           <div className="grid gap-x-6 gap-y-5 md:grid-cols-2">
             <div className="space-y-2">
               <Label
@@ -51,8 +90,12 @@ export default function AddFood() {
                 className="h-11 rounded-xl px-4 text-sm shadow-none sm:h-12 sm:text-base"
                 id="restaurant-name"
                 name="restaurantName"
+                onChange={(event) =>
+                  updateRestaurant("name", event.target.value)
+                }
                 placeholder="e.g. Dhaba Express"
                 required
+                value={restaurant.name}
               />
             </div>
 
@@ -68,9 +111,13 @@ export default function AddFood() {
                 id="contact-number"
                 inputMode="tel"
                 name="contactNumber"
+                onChange={(event) =>
+                  updateRestaurant("contactNumber", event.target.value)
+                }
                 placeholder="e.g. +91 98765 43210"
                 required
                 type="tel"
+                value={restaurant.contactNumber}
               />
             </div>
 
@@ -85,8 +132,12 @@ export default function AddFood() {
                 className="h-11 rounded-xl px-4 text-sm shadow-none sm:h-12 sm:text-base"
                 id="address"
                 name="address"
+                onChange={(event) =>
+                  updateRestaurant("address", event.target.value)
+                }
                 placeholder="e.g. 12 MG Road, Pune"
                 required
+                value={restaurant.address}
               />
             </div>
 
@@ -101,7 +152,11 @@ export default function AddFood() {
                 className="h-11 rounded-xl px-4 text-sm shadow-none sm:h-12 sm:text-base"
                 id="tagline"
                 name="tagline"
+                onChange={(event) =>
+                  updateRestaurant("tagline", event.target.value)
+                }
                 placeholder="e.g. Home-style food, made fresh daily"
+                value={restaurant.tagline}
               />
             </div>
           </div>
@@ -123,8 +178,6 @@ export default function AddFood() {
 
             <AddDishDialog onAddAction={addDish} />
           </fieldset>
-
-          <input name="dishes" type="hidden" value={JSON.stringify(dishes)} />
 
           <Button
             className="h-12 w-full rounded-xl text-sm font-semibold sm:text-base"

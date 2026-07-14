@@ -56,6 +56,7 @@ export default function AddDishDialog({ onAddAction }: AddDishDialogProps) {
 
   async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
+    event.stopPropagation();
     setSaving(true);
     setError("");
     try {

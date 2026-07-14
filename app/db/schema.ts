@@ -15,7 +15,8 @@ export const restaurants = pgTable("restaurants", {
   contactNumber: text().notNull(),
   tagline: text(),
 
-  template: text().notNull().default("menu-card"),
+  ownerKey: text().notNull(),
+  template: text().notNull().default("template-1"),
   createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
 });
 
