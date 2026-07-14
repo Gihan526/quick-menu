@@ -1,6 +1,6 @@
 # Quick Menu
 
-Quick Menu is a self-service menu-page generator for restaurant owners. An owner enters their restaurant details, adds multiple dishes with photos and prices, previews a menu template, and publishes a live public page in one flow—without manual approval or deployment work.
+Quick Menu is a self-service menu-page generator for restaurant owners. An owner enters their restaurant details, adds multiple dishes with photos and prices, previews a menu template, and publishes a live public page in one flow-without manual approval or deployment work.
 
 Published menus use the application's Vercel domain and a restaurant-specific path:
 
@@ -76,8 +76,8 @@ bunx drizzle-kit push
 
 The schema creates:
 
-- `restaurants` — restaurant details, unique slug, selected template, and owner key
-- `dishes` — dish details, photo URL, display order, and the restaurant relationship
+- `restaurants` - restaurant details, unique slug, selected template, and owner key
+- `dishes` - dish details, photo URL, display order, and the restaurant relationship
 
 ### 4. Configure Supabase Storage
 
