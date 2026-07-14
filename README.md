@@ -112,16 +112,6 @@ bun run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
-## Available scripts
-
-```bash
-bun run dev      # Start the local development server
-bun run build    # Create a production build
-bun run start    # Run the production build
-bun run lint     # Run ESLint
-```
-
-
 ## Adding another menu template
 
 The saved `template` value determines how a restaurant is rendered, so existing restaurant pages keep their selected design when new templates are introduced.
