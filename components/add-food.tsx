@@ -10,11 +10,13 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import { isValidIndianPhone } from "@/lib/phone";
 import { deleteDishPhoto } from "@/lib/upload";
 
 export default function AddFood() {
   const [dishes, setDishes] = useState<Dish[]>([]);
   const [step, setStep] = useState("details");
+  const [phoneError, setPhoneError] = useState("");
   const [restaurant, setRestaurant] = useState({
     name: "",
     contactNumber: "",
@@ -27,8 +29,18 @@ export default function AddFood() {
     setRestaurant((current) => ({ ...current, [field]: value }));
   }
 
+  function validatePhone(value: string): boolean {
+    if (!isValidIndianPhone(value)) {
+      setPhoneError("Enter a valid Indian mobile number, e.g. +91 98765 43210");
+      return false;
+    }
+    setPhoneError("");
+    return true;
+  }
+
   function showTemplates(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (!validatePhone(restaurant.contactNumber)) return;
     setStep("templates");
   }
 
@@ -107,18 +119,30 @@ export default function AddFood() {
                 Contact number
               </Label>
               <Input
+                aria-describedby={phoneError ? "contact-number-error" : undefined}
+                aria-invalid={Boolean(phoneError) || undefined}
                 className="h-11 rounded-xl px-4 text-sm shadow-none sm:h-12 sm:text-base"
                 id="contact-number"
                 inputMode="tel"
                 name="contactNumber"
-                onChange={(event) =>
-                  updateRestaurant("contactNumber", event.target.value)
-                }
+                onChange={(event) => {
+                  updateRestaurant("contactNumber", event.target.value);
+                  if (phoneError) validatePhone(event.target.value);
+                }}
+                onBlur={(event) => validatePhone(event.target.value)}
                 placeholder="e.g. +91 98765 43210"
                 required
                 type="tel"
                 value={restaurant.contactNumber}
               />
+              {phoneError && (
+                <p
+                  className="text-xs text-destructive sm:text-sm"
+                  id="contact-number-error"
+                >
+                  {phoneError}
+                </p>
+              )}
             </div>
 
             <div className="space-y-2 md:col-span-2">

@@ -17,6 +17,7 @@ const templates = [
   { id: "template-1", name: "Template 1" },
   { id: "template-2", name: "Template 2" },
   { id: "template-3", name: "Template 3" },
+  { id: "template-4", name: "Template 4" },
 ] satisfies { id: MenuTemplateId; name: string }[];
 
 type TemplateSelectorProps = {
@@ -50,7 +51,11 @@ export default function TemplateSelector({
 
     try {
       const result = await createRestaurant(formData);
-      setPublishedSlug(result.slug);
+      if (result.ok) {
+        setPublishedSlug(result.slug);
+      } else {
+        setPublishError(result.error);
+      }
     } catch {
       setPublishError("Could not publish the menu. Please try again.");
     } finally {

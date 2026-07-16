@@ -32,7 +32,9 @@ export default async function RestaurantPage({
       ? "bg-[#f4efe5]"
       : restaurant.template === "template-3"
         ? "bg-zinc-950"
-        : "bg-[#f7f7f5]";
+        : restaurant.template === "template-4"
+          ? "bg-[#140f0b]"
+          : "bg-[#f7f7f5]";
 
   return (
     <main className={`min-h-screen ${background}`}>

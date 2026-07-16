@@ -2,17 +2,32 @@
 
 import { db } from "@/app/db";
 import { dishes, restaurants } from "@/app/db/schema";
+import { isValidIndianPhone } from "@/lib/phone";
 import { generateOwnerKey } from "@/lib/owner-key";
 import { generateUniqueSlug } from "@/lib/slug";
 
 type DishInput = { name: string; price: string; photo: string | null };
 
-export async function createRestaurant(formData: FormData) {
+type CreateRestaurantResult =
+  | { ok: true; slug: string }
+  | { ok: false; error: string };
+
+export async function createRestaurant(
+  formData: FormData,
+): Promise<CreateRestaurantResult> {
   const name = String(formData.get("restaurantName"));
   const contactNumber = String(formData.get("contactNumber"));
   const address = String(formData.get("address"));
   const tagline = String(formData.get("tagline")) || null;
   const template = String(formData.get("template") || "template-1");
+
+  if (!isValidIndianPhone(contactNumber)) {
+    return {
+      ok: false,
+      error:
+        "Invalid contact number. Please enter a valid Indian mobile number.",
+    };
+  }
 
   const dishList: DishInput[] = JSON.parse(String(formData.get("dishes")));
 
@@ -42,5 +57,5 @@ export async function createRestaurant(formData: FormData) {
     })),
   );
 
-  return { slug };
+  return { ok: true, slug };
 }
